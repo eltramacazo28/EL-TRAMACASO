@@ -305,7 +305,7 @@
         <button id="btnBuscarVenta" class="btn-secundario"><i class="fas fa-search"></i></button>
       </div>
       <div id="resultadoVenta" style="margin:10px 0; background:#1f1712; padding:10px; border-radius:16px; min-height:50px; color:#b8a68b;">
-        <span>Producto: <span id="ventaNombre">-</span> | Stock: <span id="ventaStock">-</span></span>
+        <span>Producto: <span id="ventaNombre">-</span> | Precio: <span id="ventaPrecio">-</span> | Stock: <span id="ventaStock">-</span></span>
       </div>
       <label>Cantidad a vender</label>
       <input type="number" id="cantidadVender" value="1" min="1">
@@ -351,11 +351,34 @@
   // ============================================
   // CONFIGURACIÓN (URL ACTUALIZADA)
   // ============================================
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxw8OSjglMow0dQ5e5UncupNfc4fJ6S9jPBgHkfOSdSfBz14s6gBfxy1WfBe3O8u1imZg/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye5c-HZJE7U52Q6PXzDxxPYtfmciTUJzMiFrXZgxERuV_BkXTViQ2DymUiAFtvu-Wj7Q/exec';
 
   let productos = [];
   let ventas = [];
   let conexionActiva = false;
+
+  // ============================================
+  // NORMALIZACIÓN DE PRODUCTOS
+  // Garantiza que codigo/descripcion/categoria siempre sean texto (trim
+  // incluido) y que costo/precio/cantidad/medida siempre sean números,
+  // sin importar si el producto viene de localStorage, de Google Sheets,
+  // o de un registro nuevo. Esto es lo que evita que la búsqueda y el
+  // borrado fallen quedito por comparar tipos distintos (texto vs número)
+  // o por espacios/mayúsculas invisibles.
+  // También lee 'medida (ml)' como respaldo por si el Apps Script todavía
+  // no se actualizó a la versión con el encabezado corregido.
+  // ============================================
+  function normalizarProducto(p) {
+    return {
+      codigo: String(p.codigo ?? '').trim(),
+      descripcion: String(p.descripcion ?? '').trim(),
+      categoria: String(p.categoria ?? '').trim(),
+      costo: Number(p.costo) || 0,
+      precio: Number(p.precio) || 0,
+      cantidad: Number(p.cantidad) || 0,
+      medida: Number(p.medida ?? p['medida (ml)']) || 0
+    };
+  }
 
   // ============================================
   // NUEVA FUNCIÓN: LEER DATOS DE SHEETS (PRODUCTOS Y VENTAS)
@@ -366,9 +389,9 @@
       if (response.ok) {
         const data = await response.json();
         
-        // Si el script envía productos, los cargamos
+        // Si el script envía productos, los cargamos (normalizados)
         if (data.productos && data.productos.length > 0) {
-           productos = data.productos;
+           productos = data.productos.map(normalizarProducto);
            localStorage.setItem('productos_bar', JSON.stringify(productos));
            renderStock();
         }
@@ -450,7 +473,7 @@
   function cargarDatosLocales() {
     const p = localStorage.getItem('productos_bar');
     const v = localStorage.getItem('ventas_bar');
-    productos = p ? JSON.parse(p) : [];
+    productos = p ? JSON.parse(p).map(normalizarProducto) : [];
     ventas = v ? JSON.parse(v) : [];
   }
 
@@ -469,9 +492,14 @@
       document.getElementById('contadorBajos').innerText = '0';
       return;
     }
+    // Se ordena una COPIA solo para mostrarla (alfabético por descripción);
+    // el arreglo original "productos" no se toca ni cambia de orden.
+    const productosOrdenados = [...productos].sort((a, b) =>
+      a.descripcion.localeCompare(b.descripcion, 'es', { sensitivity: 'base' })
+    );
     let html = '';
     let bajos = 0;
-    productos.forEach(p => {
+    productosOrdenados.forEach(p => {
       const bajo = p.cantidad <= 3;
       if (bajo) bajos++;
       html += `<div class="item-stock">
@@ -485,19 +513,27 @@
 
   // ============================================
   // BUSCADOR
+  // Compara siempre como texto, en minúsculas y sin espacios, para que
+  // no importe si el código llegó como número o con mayúsculas distintas.
   // ============================================
   function buscarProducto(termino) {
-    if (!termino.trim()) return null;
+    if (!termino || !termino.trim()) return null;
     const t = termino.trim().toLowerCase();
-    return productos.find(p => p.codigo.toLowerCase() === t || p.descripcion.toLowerCase().includes(t));
+    return productos.find(p => {
+      const codigo = String(p.codigo ?? '').toLowerCase();
+      const descripcion = String(p.descripcion ?? '').toLowerCase();
+      return codigo === t || descripcion.includes(t);
+    });
   }
 
   function actualizarVistaVenta(producto) {
     if (producto) {
       document.getElementById('ventaNombre').innerText = producto.descripcion + ' (' + producto.codigo + ')';
+      document.getElementById('ventaPrecio').innerText = '$' + Number(producto.precio).toLocaleString();
       document.getElementById('ventaStock').innerText = producto.cantidad;
     } else {
       document.getElementById('ventaNombre').innerText = '-';
+      document.getElementById('ventaPrecio').innerText = '-';
       document.getElementById('ventaStock').innerText = '-';
     }
   }
@@ -511,16 +547,21 @@
 
   // ============================================
   // ELIMINAR PRODUCTO
+  // Misma lógica de comparación que buscarProducto (texto, minúsculas,
+  // sin espacios) para que un producto que SÍ aparece en el buscador
+  // también se pueda eliminar con el mismo código.
   // ============================================
   async function eliminarPorCodigo() {
-    const codigo = document.getElementById('inputEliminarCodigo').value.trim();
-    if (!codigo) {
+    const codigoInput = document.getElementById('inputEliminarCodigo').value.trim();
+    if (!codigoInput) {
       alert('⚠️ Ingresa un código');
       return;
     }
-    const index = productos.findIndex(p => p.codigo === codigo);
+    const buscado = codigoInput.toLowerCase();
+    const index = productos.findIndex(p => String(p.codigo ?? '').toLowerCase() === buscado);
     if (index === -1) {
-      alert(`❌ Producto "${codigo}" no encontrado`);
+      console.log('Códigos disponibles:', productos.map(p => p.codigo));
+      alert(`❌ Producto "${codigoInput}" no encontrado`);
       return;
     }
     if (!confirm(`¿Eliminar "${productos[index].descripcion}"?`)) return;
@@ -550,7 +591,8 @@
       alert('Completa todos los campos');
       return;
     }
-    if (productos.find(p => p.codigo === codigo)) {
+    const codigoNormalizado = codigo.toLowerCase();
+    if (productos.find(p => String(p.codigo ?? '').toLowerCase() === codigoNormalizado)) {
       alert('El código ya existe');
       return;
     }
@@ -592,9 +634,10 @@
     
     const total = cantidadVender * producto.precio;
     const fecha = new Date().toISOString().slice(0,10);
+    const nuevaVenta = { producto: producto.codigo, cantidad: cantidadVender, total, fecha };
     
-    // 1. Registrar venta
-    ventas.push({ producto: producto.codigo, cantidad: cantidadVender, total, fecha });
+    // 1. Registrar venta localmente
+    ventas.push(nuevaVenta);
     
     // 2. Actualizar stock
     producto.cantidad -= cantidadVender;
@@ -602,9 +645,13 @@
     renderStock();
     actualizarVistaVenta(producto);
     
-    // 3. Sincronizar con Sheets (AMBOS)
+    // 3. Sincronizar con Sheets
+    // IMPORTANTE: 'productos' se reescribe completo (representa el stock actual),
+    // pero 'ventas' es un historial que el backend solo AGREGA (append), por eso
+    // aquí se envía únicamente la venta nueva y no el arreglo completo
+    // (evita que cada venta duplique todas las ventas anteriores).
     await escribirGoogleSheet(productos, 'productos');
-    await escribirGoogleSheet(ventas, 'ventas');
+    await escribirGoogleSheet([nuevaVenta], 'ventas');
     
     alert(`✅ Venta: ${producto.descripcion} x${cantidadVender} = $${total}`);
   }
