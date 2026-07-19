@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Análisis de Ventas - LICORERA EL TRAMACAZO</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; }
+    body { background: #0b0c0e; color: #eae6d6; padding: 20px; min-height: 100vh; }
+    :root { --fondo: #1a1410; --card: #282018; --borde: #7f5a3e; --dorado: #c9a87c; --vino: #8b2f3a; }
+    .app { max-width: 1200px; margin: 0 auto; }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid var(--borde); padding-bottom: 18px; margin-bottom: 30px;
+      flex-wrap: wrap; background: var(--fondo); padding: 16px 24px;
+      border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    }
+    .header h1 { display: flex; align-items: center; gap: 12px; font-weight: 300; letter-spacing: 2px; color: var(--dorado); font-size: 2rem; }
+    .header h1 i { color: var(--vino); }
+    .btn-volver {
+      background: var(--vino); border: none; padding: 12px 24px; border-radius: 16px;
+      color: #f2ebe1; font-weight: 600; cursor: pointer; transition: 0.2s;
+      box-shadow: 0 4px 0 #4d1a22; text-decoration: none; display: inline-block;
+    }
+    .btn-volver:hover { background: #a33c48; transform: translateY(-2px); box-shadow: 0 6px 0 #4d1a22; }
+    .btn-recargar {
+      background: #1a3a5a; border: none; padding: 12px 24px; border-radius: 16px;
+      color: #f2ebe1; font-weight: 600; cursor: pointer; transition: 0.2s;
+      box-shadow: 0 4px 0 #0d1f3a; text-decoration: none; display: inline-block;
+    }
+    .btn-recargar:hover { background: #2a5a7a; transform: translateY(-2px); box-shadow: 0 6px 0 #0d1f3a; }
+    .card { background: var(--card); border: 1px solid #3f2e24; border-radius: 24px; padding: 20px 18px; margin-bottom: 24px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
+    .card h3 { color: var(--dorado); font-weight: 300; letter-spacing: 1px; border-bottom: 1px solid #3f2e24; padding-bottom: 12px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+    .card h3 i { color: var(--vino); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-item { background: #1f1712; padding: 16px; border-radius: 16px; text-align: center; border: 1px solid #3f2e24; }
+    .stat-item .numero { font-size: 1.8rem; font-weight: 700; color: var(--dorado); }
+    .stat-item .label { font-size: 0.85rem; color: #b8a68b; margin-top: 4px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grafico-card { background: var(--card); border: 1px solid #3f2e24; border-radius: 24px; padding: 16px; }
+    .grafico-card h4 { color: var(--dorado); margin-bottom: 12px; font-weight: 300; }
+    #chart_diario, #chart_semanal, #chart_mensual_analisis, #chart_anual_analisis { width: 100%; height: 250px; }
+    .header-botones { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .status-msg { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; background: #1f1712; }
+    .status-msg.conectado { color: #4caf50; border-left: 3px solid #4caf50; }
+    .status-msg.error { color: #f44336; border-left: 3px solid #f44336; }
+    .status-msg.espera { color: var(--dorado); border-left: 3px solid var(--dorado); }
+    @media (max-width: 700px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1><i class="fas fa-chart-pie"></i> Análisis de Ventas</h1>
+    <div class="header-botones">
+      <button id="btnRecargar" class="btn-recargar">
+        <i class="fas fa-sync"></i> Cargar desde Sheets
+      </button>
+      <button onclick="window.location.href='index.html'" class="btn-volver">
+        <i class="fas fa-arrow-left"></i> Volver
+      </button>
+    </div>
+  </div>
+
+  <div style="margin-bottom:20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; background:var(--card); padding:10px 20px; border-radius:16px;">
+    <span style="color:#b8a68b;"><i class="fas fa-plug"></i> Estado:</span>
+    <span id="statusConexion" class="status-msg espera"><i class="fas fa-circle"></i> Conectando...</span>
+  </div>
+
+  <div class="card">
+    <h3><i class="fas fa-coins"></i> Resumen de ventas</h3>
+    <div class="grid-4" id="resumen">
+      <div class="stat-item"><div class="numero" id="hoy">$0</div><div class="label">Hoy</div></div>
+      <div class="stat-item"><div class="numero" id="semana">$0</div><div class="label">Esta semana</div></div>
+      <div class="stat-item"><div class="numero" id="mes">$0</div><div class="label">Este mes</div></div>
+      <div class="stat-item"><div class="numero" id="anual">$0</div><div class="label">Este año</div></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="grafico-card"><h4><i class="fas fa-chart-line"></i> Ventas diarias (últimos 7 días)</h4><div id="chart_diario"></div></div>
+    <div class="grafico-card"><h4><i class="fas fa-chart-bar"></i> Ventas semanales</h4><div id="chart_semanal"></div></div>
+  </div>
+  <div class="grid-2" style="margin-top:24px;">
+    <div class="grafico-card"><h4><i class="fas fa-chart-bar"></i> Ventas mensuales</h4><div id="chart_mensual_analisis"></div></div>
+    <div class="grafico-card"><h4><i class="fas fa-chart-pie"></i> Ventas anuales</h4><div id="chart_anual_analisis"></div></div>
+  </div>
+</div>
+
+<script>
+  // ============================================
+  // CONFIGURACIÓN
+  // ============================================
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxw8OSjglMow0dQ5e5UncupNfc4fJ6S9jPBgHkfOSdSfBz14s6gBfxy1WfBe3O8u1imZg/exec'; 
+
+  let ventas = [];
+
+  function actualizarEstado(tipo, mensaje) {
+    const el = document.getElementById('statusConexion');
+    el.className = 'status-msg ' + tipo;
+    const iconos = { 'conectado': 'fa-check-circle', 'error': 'fa-exclamation-circle', 'espera': 'fa-circle' };
+    el.innerHTML = `<i class="fas ${iconos[tipo] || 'fa-circle'}"></i> ${mensaje}`;
+  }
+
+  // ============================================
+  // LEER DESDE GOOGLE SHEETS (CON SINCRONIZACIÓN ABSOLUTA)
+  // ============================================
+  async function leerDesdeSheets() {
+    try {
+      actualizarEstado('espera', '🔄 Conectando...');
+      console.log("📡 Intentando conectar...");
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(SCRIPT_URL + '?action=leer&t=' + new Date().getTime(), { 
+        method: 'GET', 
+        mode: 'cors',
+        signal: controller.signal 
+      });
+      
+      clearTimeout(timeoutId); 
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+
+      if (data.ventas && data.ventas.length > 0) {
+        ventas = data.ventas;
+        localStorage.setItem('ventas_bar', JSON.stringify(ventas));
+        mostrarResumen();
+        dibujarGraficos();
+        actualizarEstado('conectado', '✅ Datos sincronizados con Sheets');
+      } else {
+        // SI LA HOJA ESTÁ VACÍA, BORRAMOS LA MEMORIA LOCAL
+        ventas = [];
+        localStorage.removeItem('ventas_bar');
+        mostrarResumen();
+        dibujarGraficos();
+        actualizarEstado('conectado', '✅ Sincronizado (Hoja vacía)');
+      }
+
+    } catch (error) {
+      console.error("❌ ERROR EN CONEXIÓN:", error); 
+      actualizarEstado('error', '❌ ' + error.message);
+      const v = localStorage.getItem('ventas_bar');
+      ventas = v ? JSON.parse(v) : [];
+      if(ventas.length > 0) {
+          mostrarResumen();
+          dibujarGraficos();
+          actualizarEstado('conectado', '✅ Modo local');
+      }
+    }
+  }
+
+  // ============================================
+  // MOSTRAR RESUMEN
+  // ============================================
+  function formatear(num) { return num === 0 ? '$0' : '$' + num.toLocaleString(); }
+
+  function calcularResumen() {
+    const hoy = new Date();
+    const year = hoy.getFullYear();
+    const month = String(hoy.getMonth() + 1).padStart(2, '0');
+    const day = String(hoy.getDate()).padStart(2, '0');
+    const hoyStr = `${year}-${month}-${day}`;
+    
+    const hoyDate = new Date(year, hoy.getMonth(), hoy.getDate());
+    const inicioSemana = new Date(hoyDate);
+    inicioSemana.setDate(hoyDate.getDate() - hoyDate.getDay());
+    const inicioMes = new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1);
+    const inicioAnio = new Date(hoyDate.getFullYear(), 0, 1);
+    
+    const inicioSemanaStr = inicioSemana.toISOString().slice(0,10);
+    const inicioMesStr = inicioMes.toISOString().slice(0,10);
+    const inicioAnioStr = inicioAnio.toISOString().slice(0,10);
+
+    let totalHoy = 0, totalSemana = 0, totalMes = 0, totalAnio = 0;
+    
+    ventas.forEach(v => {
+      if (!v.fecha) return;
+      const total = Number(v.total) || 0;
+      
+      let fechaStr = String(v.fecha).substring(0, 10); 
+      
+      if (fechaStr === hoyStr) totalHoy += total;
+      if (fechaStr >= inicioSemanaStr) totalSemana += total;
+      if (fechaStr >= inicioMesStr) totalMes += total;
+      if (fechaStr >= inicioAnioStr) totalAnio += total;
+    });
+    return { totalHoy, totalSemana, totalMes, totalAnio };
+  }
+
+  function mostrarResumen() {
+    const r = calcularResumen();
+    document.getElementById('hoy').textContent = formatear(r.totalHoy);
+    document.getElementById('semana').textContent = formatear(r.totalSemana);
+    document.getElementById('mes').textContent = formatear(r.totalMes);
+    document.getElementById('anual').textContent = formatear(r.totalAnio);
+  }
+
+  // ============================================
+  // GRÁFICOS
+  // ============================================
+  function dibujarGraficos() {
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(() => {
+      const hoy = new Date();
+      
+      // Diario
+      const dias = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(hoy);
+        d.setDate(d.getDate() - i);
+        dias.push(d);
+      }
+      const dataDiario = [['Día', 'Ventas']];
+      dias.forEach(d => {
+        const diaStr = d.toISOString().slice(0, 10);
+        const total = ventas.filter(v => v.fecha && String(v.fecha).substring(0, 10) === diaStr)
+          .reduce((sum, v) => sum + (v.total || 0), 0);
+        dataDiario.push([d.toLocaleDateString('es', { weekday: 'short' }), total]);
+      });
+      const chartDiario = new google.visualization.ColumnChart(document.getElementById('chart_diario'));
+      chartDiario.draw(google.visualization.arrayToDataTable(dataDiario), {
+        backgroundColor: '#1a1410', colors: ['#c9a87c'], legend: { textStyle: { color: '#b8a68b' } },
+        hAxis: { textStyle: { color: '#b8a68b' } }, vAxis: { textStyle: { color: '#b8a68b' } }
+      });
+
+      // Semanal
+      const semanas = [];
+      for (let i = 7; i >= 0; i--) {
+        const d = new Date(hoy);
+        d.setDate(d.getDate() - d.getDay() - (i * 7));
+        semanas.push(d);
+      }
+      const dataSemanal = [['Semana', 'Ventas']];
+      semanas.forEach((d, idx) => {
+        const inicio = new Date(d);
+        const fin = new Date(d);
+        fin.setDate(fin.getDate() + 6);
+        const total = ventas.filter(v => {
+          if (!v.fecha) return false;
+          const f = new Date(String(v.fecha).substring(0, 10) + 'T00:00:00'); 
+          return f >= inicio && f <= fin;
+        }).reduce((sum, v) => sum + (v.total || 0), 0);
+        dataSemanal.push([`Sem ${idx+1}`, total]);
+      });
+      const chartSemanal = new google.visualization.ColumnChart(document.getElementById('chart_semanal'));
+      chartSemanal.draw(google.visualization.arrayToDataTable(dataSemanal), {
+        backgroundColor: '#1a1410', colors: ['#8b2f3a'], legend: { textStyle: { color: '#b8a68b' } },
+        hAxis: { textStyle: { color: '#b8a68b' } }, vAxis: { textStyle: { color: '#b8a68b' } }
+      });
+
+      // Mensual
+      const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      const ventasPorMes = Array(12).fill(0);
+      ventas.forEach(v => {
+        if (v.fecha) {
+          const m = new Date(String(v.fecha).substring(0, 10) + 'T00:00:00').getMonth();
+          if (!isNaN(m)) ventasPorMes[m] += v.total || 0;
+        }
+      });
+      const dataMensual = [['Mes', 'Ventas']];
+      meses.forEach((m, i) => dataMensual.push([m, ventasPorMes[i]]));
+      const chartMensual = new google.visualization.ColumnChart(document.getElementById('chart_mensual_analisis'));
+      chartMensual.draw(google.visualization.arrayToDataTable(dataMensual), {
+        backgroundColor: '#1a1410', colors: ['#c9a87c'], legend: { textStyle: { color: '#b8a68b' } },
+        hAxis: { textStyle: { color: '#b8a68b' } }, vAxis: { textStyle: { color: '#b8a68b' } }
+      });
+
+      // Anual
+      const anualMap = {};
+      ventas.forEach(v => {
+        if (v.fecha) {
+          const year = new Date(String(v.fecha).substring(0, 10) + 'T00:00:00').getFullYear();
+          if (!isNaN(year)) anualMap[year] = (anualMap[year] || 0) + (v.total || 0);
+        }
+      });
+      const años = Object.keys(anualMap).sort();
+      const dataAnual = [['Año', 'Ventas']];
+      años.forEach(a => dataAnual.push([a, anualMap[a]]));
+      const chartAnual = new google.visualization.PieChart(document.getElementById('chart_anual_analisis'));
+      chartAnual.draw(google.visualization.arrayToDataTable(dataAnual), {
+        backgroundColor: '#1a1410', colors: ['#c9a87c','#8b2f3a','#7f5a3e','#dacfbc'],
+        legend: { textStyle: { color: '#b8a68b' } }
+      });
+    });
+  }
+
+  // ============================================
+  // INICIALIZAR
+  // ============================================
+  window.onload = function() {
+    const v = localStorage.getItem('ventas_bar');
+    ventas = v ? JSON.parse(v) : [];
+    if(ventas.length > 0) {
+        mostrarResumen();
+        dibujarGraficos();
+        actualizarEstado('conectado', '✅ Datos cargados (local)');
+    } else {
+        actualizarEstado('espera', 'Sin datos previos');
+    }
+    setTimeout(() => {
+        leerDesdeSheets();
+    }, 500);
+    document.getElementById('btnRecargar').addEventListener('click', leerDesdeSheets);
+  };
+</script>
+</body>
+</html>
