@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BAR EL TRAMACAZO</title>
-  <!-- Font Awesome (opcional, para iconos) -->
+  <title>LICORERA EL TRAMACAZO</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Google Charts -->
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <style>
     * {
       margin: 0;
@@ -21,21 +18,14 @@
       padding: 20px;
       min-height: 100vh;
     }
-    /* Paleta inspirada en la imagen: tonos tierra, vino, dorado */
     :root {
       --fondo: #1a1410;
       --card: #282018;
       --borde: #7f5a3e;
       --dorado: #c9a87c;
       --vino: #8b2f3a;
-      --texto-claro: #f2ebe1;
-      --texto-oscuro: #2c1e16;
     }
-    .app {
-      max-width: 1440px;
-      margin: 0 auto;
-    }
-    /* header con frase inspiradora */
+    .app { max-width: 1440px; margin: 0 auto; }
     .header {
       display: flex;
       justify-content: space-between;
@@ -58,7 +48,6 @@
       color: var(--dorado);
       font-size: 2rem;
     }
-    /* Logo pequeño a la izquierda del título */
     .logo {
       width: 48px;
       height: 48px;
@@ -77,22 +66,7 @@
       box-shadow: 0 0 10px rgba(201,168,124,0.2);
       font-size: 1.1rem;
     }
-    .frase span {
-      color: var(--dorado);
-      font-weight: 500;
-    }
-    .sheet-sync {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .sheet-sync input {
-      width: 220px;
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      border-radius: 10px;
-    }
-    /* tarjetas */
+    .frase span { color: var(--dorado); font-weight: 500; }
     .grid-paneles {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -122,10 +96,7 @@
       align-items: center;
       gap: 10px;
     }
-    .card h3 i {
-      color: var(--vino);
-    }
-    /* formularios */
+    .card h3 i { color: var(--vino); }
     label {
       display: block;
       margin-top: 14px;
@@ -177,16 +148,24 @@
     .btn-secundario:hover {
       background: #5f4032;
     }
-    .fila-botones {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .btn-peligro {
+      background: #6a1f2b;
+      box-shadow: 0 4px 0 #3d0f17;
     }
-    .fila-botones button {
-      flex: 1;
-      min-width: 120px;
+    .btn-peligro:hover {
+      background: #8a2a3a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #3d0f17;
     }
-    /* tabla / lista */
+    .btn-analisis {
+      background: #1a4a3a;
+      box-shadow: 0 4px 0 #0d2a1f;
+    }
+    .btn-analisis:hover {
+      background: #2a6a4a;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #0d2a1f;
+    }
     .lista-stock {
       max-height: 300px;
       overflow-y: auto;
@@ -203,10 +182,7 @@
       font-size: 0.9rem;
       align-items: center;
     }
-    .item-stock .nombre {
-      font-weight: 400;
-      color: #ddd0bc;
-    }
+    .item-stock .nombre { font-weight: 400; color: #ddd0bc; }
     .item-stock .cantidad {
       background: #1f1712;
       padding: 4px 12px;
@@ -221,61 +197,24 @@
       border-radius: 30px;
       font-weight: 700;
     }
-    /* Buscador */
     .buscador {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin: 16px 0 10px;
     }
-    .buscador input {
-      flex: 2;
-      min-width: 140px;
-    }
+    .buscador input { flex: 2; min-width: 140px; }
     .buscador button {
       flex: 0 0 auto;
       width: auto;
       padding: 12px 24px;
       margin: 0;
     }
-    /* gráficos */
-    .graficos {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 30px;
-    }
-    .grafico-card {
-      background: var(--card);
-      border: 1px solid #3f2e24;
-      border-radius: 24px;
-      padding: 16px;
-    }
-    .grafico-card h4 {
-      color: var(--dorado);
-      margin-bottom: 12px;
-      font-weight: 300;
-    }
-    #chart_mensual, #chart_anual {
-      width: 100%;
-      height: 200px;
-    }
-    /* scroll */
-    ::-webkit-scrollbar {
-      width: 8px;
-      background: #1a1410;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--borde);
-      border-radius: 12px;
-    }
-    /* responsive */
+    ::-webkit-scrollbar { width: 8px; background: #1a1410; }
+    ::-webkit-scrollbar-thumb { background: var(--borde); border-radius: 12px; }
     @media (max-width: 700px) {
-      .graficos { grid-template-columns: 1fr; }
       .header { flex-direction: column; align-items: start; gap: 12px; }
     }
-    .oculto { display: none; }
-    /* Estado de conexión */
     .status-msg {
       display: inline-block;
       padding: 6px 14px;
@@ -287,13 +226,44 @@
     .status-msg.conectado { color: #4caf50; border-left: 3px solid #4caf50; }
     .status-msg.error { color: #f44336; border-left: 3px solid #f44336; }
     .status-msg.espera { color: var(--dorado); border-left: 3px solid var(--dorado); }
+    
+    .eliminar-area {
+      margin-top: 12px;
+      padding: 12px;
+      background: #1a0f0f;
+      border-radius: 12px;
+      border: 1px solid #3d1a1a;
+    }
+    .eliminar-area .fila-input {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .eliminar-area .fila-input input {
+      flex: 2;
+      margin-top: 0;
+      padding: 10px 12px;
+    }
+    .eliminar-area .fila-input button {
+      flex: 1;
+      margin-top: 0;
+      padding: 10px 12px;
+      background: #6a1f2b;
+    }
+    .eliminar-area .fila-input button:hover { background: #8a2a3a; }
+    .eliminar-area small {
+      display: block;
+      margin-top: 6px;
+      color: #999;
+      font-size: 0.8rem;
+    }
   </style>
 </head>
 <body>
 <div class="app" id="app">
   <!-- HEADER -->
   <div class="header">
-    <h1><img src="logo.jpg" alt="Logo" class="logo"> BAR EL TRAMACAZO</h1>
+    <h1><img src="logo.jpg" alt="Logo" class="logo"> LICORERA EL TRAMACAZO - REGISTRO Y VENTAS</h1>
     <div class="frase"><i class="fas fa-quote-left" style="color:var(--dorado);margin-right:8px;"></i> NO FUE MI ORGULLO, <span>FUE TU INDIFERENCIA</span> <i class="fas fa-quote-right" style="color:var(--dorado);margin-left:8px;"></i></div>
   </div>
 
@@ -346,21 +316,29 @@
     <!-- STOCK Y BAJOS -->
     <div class="card">
       <h3><i class="fas fa-boxes"></i> Stock · alerta baja</h3>
-      <button id="btnVerStock"><i class="fas fa-eye"></i> Mostrar todo el stock</button>
+      
+      <button onclick="window.location.href='analisis.html'" class="btn-analisis">
+        <i class="fas fa-chart-pie"></i> Análisis de ventas
+      </button>
+      
+      <div class="eliminar-area">
+        <div class="fila-input">
+          <input type="text" id="inputEliminarCodigo" placeholder="Código a eliminar (ej: P-001)">
+          <button id="btnEliminarPorCodigo" class="btn-peligro">
+            <i class="fas fa-trash"></i> Eliminar
+          </button>
+        </div>
+        <small><i class="fas fa-info-circle"></i> Elimina el producto de la página y de Google Sheets.</small>
+      </div>
+      
       <div id="listaStockContainer" class="lista-stock" style="margin-top:12px; max-height:220px;">
-        <div style="padding:10px; color:#7a6b58;">Presiona el botón para cargar stock</div>
+        <div style="padding:10px; color:#7a6b58;">No hay productos</div>
       </div>
       <div style="margin-top:12px; background:#1f1712; border-radius:20px; padding:8px 14px; display:flex; justify-content:space-between;">
         <span><i class="fas fa-triangle-exclamation" style="color:var(--dorado);"></i> Bajos (≤3)</span>
         <span id="contadorBajos">0</span>
       </div>
     </div>
-  </div>
-
-  <!-- GRAFICOS -->
-  <div class="graficos">
-    <div class="grafico-card"><h4><i class="fas fa-chart-bar"></i> Ventas mensuales</h4><div id="chart_mensual"></div></div>
-    <div class="grafico-card"><h4><i class="fas fa-chart-pie"></i> Ventas anuales</h4><div id="chart_anual"></div></div>
   </div>
 
   <!-- FOOTER -->
@@ -371,74 +349,73 @@
 
 <script>
   // ============================================
-  // CONFIGURACIÓN - URL DE TU SCRIPT
+  // CONFIGURACIÓN (URL ACTUALIZADA)
   // ============================================
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3tjboZZHRxK15kenH5_aOP8p4nW8HevZrTblNqruHxGcTAEEmldmFZnPoOvpHuKu8nw/exec';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxw8OSjglMow0dQ5e5UncupNfc4fJ6S9jPBgHkfOSdSfBz14s6gBfxy1WfBe3O8u1imZg/exec';
 
-  // ============================================
-  // ESTADO LOCAL
-  // ============================================
   let productos = [];
   let ventas = [];
   let conexionActiva = false;
 
   // ============================================
-  // FUNCIONES DE GOOGLE SHEETS
+  // NUEVA FUNCIÓN: LEER DATOS DE SHEETS (PRODUCTOS Y VENTAS)
   // ============================================
-  
-  /**
-   * Envía datos al script de Google Apps Script
-   */
+  async function leerDatosDeSheets() {
+    try {
+      const response = await fetch(SCRIPT_URL + '?action=leer', { method: 'GET', mode: 'cors' });
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Si el script envía productos, los cargamos
+        if (data.productos && data.productos.length > 0) {
+           productos = data.productos;
+           localStorage.setItem('productos_bar', JSON.stringify(productos));
+           renderStock();
+        }
+        
+        // Si el script envía ventas, las cargamos (para mantener todo sincronizado)
+        if (data.ventas && data.ventas.length > 0) {
+           ventas = data.ventas;
+           localStorage.setItem('ventas_bar', JSON.stringify(ventas));
+        }
+        
+        actualizarEstado('conectado', '✅ Datos sincronizados con Sheets');
+      }
+    } catch (error) {
+      console.warn("⚠️ No se pudo leer datos de Sheets:", error);
+    }
+  }
+
+  // ============================================
+  // FUNCIÓN PARA ESCRIBIR EN SHEETS
+  // ============================================
   async function escribirGoogleSheet(datos, tipo) {
     try {
-      const response = await fetch(SCRIPT_URL, {
+      console.log(`📤 Enviando ${tipo}...`);
+      await fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          tipo: tipo, 
-          datos: datos 
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: tipo, datos: datos })
       });
-      
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      console.log('Respuesta del script:', result);
-      
-      if (result.success) {
-        actualizarEstado('conectado', 'Datos sincronizados');
-        return true;
-      } else {
-        throw new Error(result.error || 'Error desconocido');
-      }
-      
+      console.log(`✅ ${tipo} enviados`);
+      actualizarEstado('conectado', '✅ Datos sincronizados');
+      return true;
     } catch (error) {
-      console.error('Error al enviar a Sheets:', error);
-      actualizarEstado('error', 'Error de conexión: ' + error.message);
-      // Guardamos localmente como fallback
+      console.error('❌ Error:', error);
+      actualizarEstado('error', '❌ ' + error.message);
       guardarLocal();
       return false;
     }
   }
 
-  /**
-   * Prueba la conexión con el script
-   */
+  // ============================================
+  // PRUEBA DE CONEXIÓN
+  // ============================================
   async function probarConexion() {
     try {
       actualizarEstado('espera', 'Probando conexión...');
-      
-      // Enviamos una petición GET para probar
-      const response = await fetch(SCRIPT_URL, {
-        method: 'GET',
-        mode: 'cors'
-      });
-      
+      const response = await fetch(SCRIPT_URL, { method: 'GET', mode: 'cors' });
       if (response.ok) {
         const text = await response.text();
         console.log('Respuesta GET:', text);
@@ -448,18 +425,14 @@
       } else {
         throw new Error(`HTTP ${response.status}`);
       }
-      
     } catch (error) {
-      console.error('Error probando conexión:', error);
-      actualizarEstado('error', '❌ No se pudo conectar: ' + error.message);
+      console.error('Error:', error);
+      actualizarEstado('error', '❌ No se pudo conectar');
       conexionActiva = false;
       return false;
     }
   }
 
-  /**
-   * Actualiza el estado de conexión en la interfaz
-   */
   function actualizarEstado(tipo, mensaje) {
     const el = document.getElementById('statusConexion');
     el.className = 'status-msg ' + tipo;
@@ -472,30 +445,13 @@
   }
 
   // ============================================
-  // FUNCIONES DE DATOS LOCALES (fallback)
+  // DATOS LOCALES
   // ============================================
   function cargarDatosLocales() {
     const p = localStorage.getItem('productos_bar');
     const v = localStorage.getItem('ventas_bar');
-    if (p) productos = JSON.parse(p); else productos = [];
-    if (v) ventas = JSON.parse(v); else ventas = [];
-    
-    if (productos.length === 0) {
-      productos = [
-        { codigo: 'P-001', descripcion: 'Whisky etiqueta negra', categoria: 'Whisky', costo: 85000, precio: 120000, cantidad: 5, medida: 750 },
-        { codigo: 'P-002', descripcion: 'Ron añejo 12 años', categoria: 'Ron', costo: 62000, precio: 89000, cantidad: 2, medida: 700 },
-        { codigo: 'P-003', descripcion: 'Ginebra premium', categoria: 'Ginebra', costo: 45000, precio: 68000, cantidad: 8, medida: 700 },
-        { codigo: 'P-004', descripcion: 'Vodka importado', categoria: 'Vodka', costo: 38000, precio: 55000, cantidad: 1, medida: 750 },
-      ];
-      guardarLocal();
-    }
-    if (ventas.length === 0) {
-      ventas = [
-        { producto: 'P-001', cantidad: 1, total: 120000, fecha: new Date().toISOString().slice(0,10) },
-        { producto: 'P-002', cantidad: 2, total: 178000, fecha: new Date().toISOString().slice(0,10) },
-      ];
-      guardarLocal();
-    }
+    productos = p ? JSON.parse(p) : [];
+    ventas = v ? JSON.parse(v) : [];
   }
 
   function guardarLocal() {
@@ -506,17 +462,16 @@
   // ============================================
   // RENDER STOCK
   // ============================================
-  function renderStock(lista = null) {
+  function renderStock() {
     const container = document.getElementById('listaStockContainer');
-    const data = lista || productos;
-    if (data.length === 0) {
+    if (productos.length === 0) {
       container.innerHTML = '<div style="padding:10px;color:#7a6b58;">No hay productos</div>';
       document.getElementById('contadorBajos').innerText = '0';
       return;
     }
     let html = '';
     let bajos = 0;
-    data.forEach(p => {
+    productos.forEach(p => {
       const bajo = p.cantidad <= 3;
       if (bajo) bajos++;
       html += `<div class="item-stock">
@@ -529,7 +484,7 @@
   }
 
   // ============================================
-  // BUSCADOR Y VENTAS
+  // BUSCADOR
   // ============================================
   function buscarProducto(termino) {
     if (!termino.trim()) return null;
@@ -555,6 +510,31 @@
   }
 
   // ============================================
+  // ELIMINAR PRODUCTO
+  // ============================================
+  async function eliminarPorCodigo() {
+    const codigo = document.getElementById('inputEliminarCodigo').value.trim();
+    if (!codigo) {
+      alert('⚠️ Ingresa un código');
+      return;
+    }
+    const index = productos.findIndex(p => p.codigo === codigo);
+    if (index === -1) {
+      alert(`❌ Producto "${codigo}" no encontrado`);
+      return;
+    }
+    if (!confirm(`¿Eliminar "${productos[index].descripcion}"?`)) return;
+    
+    productos.splice(index, 1);
+    guardarLocal();
+    renderStock();
+    actualizarVistaVenta(null);
+    await escribirGoogleSheet(productos, 'productos');
+    alert('✅ Producto eliminado');
+    document.getElementById('inputEliminarCodigo').value = '';
+  }
+
+  // ============================================
   // REGISTRAR PRODUCTO
   // ============================================
   async function registrarProducto() {
@@ -567,28 +547,20 @@
     const medida = parseInt(document.getElementById('medida').value);
     
     if (!codigo || !descripcion || isNaN(costo) || isNaN(precio) || isNaN(cantidad) || isNaN(medida)) {
-      alert('Completa todos los campos correctamente');
+      alert('Completa todos los campos');
       return;
     }
     if (productos.find(p => p.codigo === codigo)) {
-      alert('El código ya existe. Usa otro.');
+      alert('El código ya existe');
       return;
     }
     
-    const nuevoProducto = { codigo, descripcion, categoria, costo, precio, cantidad, medida };
-    productos.push(nuevoProducto);
+    productos.push({ codigo, descripcion, categoria, costo, precio, cantidad, medida });
     guardarLocal();
     renderStock();
+    await escribirGoogleSheet(productos, 'productos');
+    alert('✅ Producto registrado');
     
-    // Intentar guardar en Google Sheets
-    const guardado = await escribirGoogleSheet(productos, 'productos');
-    if (guardado) {
-      alert('✅ Producto registrado y sincronizado con Google Sheets');
-    } else {
-      alert('⚠️ Producto registrado localmente. No se pudo sincronizar con Google Sheets.');
-    }
-    
-    // Limpiar campos
     document.getElementById('codigo').value = '';
     document.getElementById('descripcion').value = '';
     document.getElementById('categoria').value = '';
@@ -599,13 +571,13 @@
   }
 
   // ============================================
-  // VENDER PRODUCTO
+  // VENDER PRODUCTO (CON SINCRONIZACIÓN COMPLETA)
   // ============================================
   async function venderProducto() {
     const termino = document.getElementById('buscarVenta').value.trim();
     const producto = buscarProducto(termino);
     if (!producto) {
-      alert('Producto no encontrado. Busca por código o nombre.');
+      alert('Producto no encontrado');
       return;
     }
     const cantidadVender = parseInt(document.getElementById('cantidadVender').value);
@@ -620,63 +592,21 @@
     
     const total = cantidadVender * producto.precio;
     const fecha = new Date().toISOString().slice(0,10);
+    
+    // 1. Registrar venta
     ventas.push({ producto: producto.codigo, cantidad: cantidadVender, total, fecha });
     
-    // Actualizar stock
+    // 2. Actualizar stock
     producto.cantidad -= cantidadVender;
     guardarLocal();
-    
     renderStock();
     actualizarVistaVenta(producto);
-    dibujarGraficos();
     
-    // Intentar guardar en Google Sheets
-    const guardado = await escribirGoogleSheet(ventas, 'ventas');
-    if (guardado) {
-      alert(`✅ Venta realizada: ${producto.descripcion} x${cantidadVender} = $${total} (sincronizado)`);
-    } else {
-      alert(`⚠️ Venta registrada localmente: ${producto.descripcion} x${cantidadVender} = $${total}`);
-    }
-  }
-
-  // ============================================
-  // GRÁFICOS (Google Charts)
-  // ============================================
-  function dibujarGraficos() {
-    google.charts.load('current', { packages: ['corechart'] });
-    google.charts.setOnLoadCallback(() => {
-      const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-      const ventasPorMes = Array(12).fill(0);
-      ventas.forEach(v => {
-        if (v.fecha) {
-          const m = new Date(v.fecha).getMonth();
-          if (!isNaN(m)) ventasPorMes[m] += v.total;
-        }
-      });
-      const dataMensual = [['Mes', 'Ventas (COP)']];
-      meses.forEach((m, i) => dataMensual.push([m, ventasPorMes[i]]));
-      const chartMensual = new google.visualization.ColumnChart(document.getElementById('chart_mensual'));
-      chartMensual.draw(google.visualization.arrayToDataTable(dataMensual), {
-        backgroundColor: '#1a1410', colors: ['#c9a87c'], legend: { textStyle: { color: '#b8a68b' } },
-        hAxis: { textStyle: { color: '#b8a68b' } }, vAxis: { textStyle: { color: '#b8a68b' } }
-      });
-
-      const anualMap = {};
-      ventas.forEach(v => {
-        if (v.fecha) {
-          const year = new Date(v.fecha).getFullYear();
-          if (!isNaN(year)) anualMap[year] = (anualMap[year] || 0) + v.total;
-        }
-      });
-      const años = Object.keys(anualMap).sort();
-      const dataAnual = [['Año', 'Ventas']];
-      años.forEach(a => dataAnual.push([a, anualMap[a]]));
-      const chartAnual = new google.visualization.PieChart(document.getElementById('chart_anual'));
-      chartAnual.draw(google.visualization.arrayToDataTable(dataAnual), {
-        backgroundColor: '#1a1410', colors: ['#c9a87c','#8b2f3a','#7f5a3e','#dacfbc'],
-        legend: { textStyle: { color: '#b8a68b' } }
-      });
-    });
+    // 3. Sincronizar con Sheets (AMBOS)
+    await escribirGoogleSheet(productos, 'productos');
+    await escribirGoogleSheet(ventas, 'ventas');
+    
+    alert(`✅ Venta: ${producto.descripcion} x${cantidadVender} = $${total}`);
   }
 
   // ============================================
@@ -685,18 +615,18 @@
   window.onload = function() {
     cargarDatosLocales();
     renderStock();
-    dibujarGraficos();
-    
-    // Probar conexión automáticamente
     probarConexion();
     
-    // Eventos
+    // INTENTAR LEER PRODUCTOS Y VENTAS DIRECTAMENTE DE SHEETS AL CARGAR
+    leerDatosDeSheets();
+    
     document.getElementById('btnProbarConexion').addEventListener('click', probarConexion);
     document.getElementById('btnRegistrar').addEventListener('click', registrarProducto);
     document.getElementById('btnVender').addEventListener('click', venderProducto);
     document.getElementById('btnBuscarVenta').addEventListener('click', buscarVentaPreview);
     document.getElementById('buscarVenta').addEventListener('keyup', (e) => { if (e.key === 'Enter') buscarVentaPreview(); });
-    document.getElementById('btnVerStock').addEventListener('click', () => renderStock(productos));
+    document.getElementById('btnEliminarPorCodigo').addEventListener('click', eliminarPorCodigo);
+    document.getElementById('inputEliminarCodigo').addEventListener('keyup', (e) => { if (e.key === 'Enter') eliminarPorCodigo(); });
     
     if (productos.length) actualizarVistaVenta(productos[0]);
   };
